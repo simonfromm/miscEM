@@ -1,10 +1,27 @@
 #!/bin/bash
-########################################################################
-### Simon Fromm, UC Berkeley 2018                                    ###
-### Script to compare CTF determination results of gctf and Ctffind4 ###
-### Generates a scatter plot with the difference in dU and dV        ###
-### determined by the two programs                                   ###
-########################################################################
+
+#################################################################################
+### Simon Fromm, UC Berkeley 2018                                             ###
+###                                                                           ###
+### Script to compare CTF determination results of gctf and Ctffind4          ###
+###     Generates a catter plot with the difference in dU and dV determined   ###
+###     by the two programs; an exclusion list based on a user-set threshold  ###
+###     is also generated.                                                    ###
+###                                                                           ###
+### This program is free software: you can redistribute it and/or modify      ###
+###     it under the terms of the GNU General Public License as published by  ###
+###     the Free Software Foundation, either version 3 of the License, or     ###
+###     (at your option) any later version.                                   ###
+###                                                                           ###
+###     This program is distributed in the hope that it will be useful,       ###
+###     but WITHOUT ANY WARRANTY; without even the implied warranty of        ###
+###     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         ###
+###     GNU General Public License for more details.                          ### 
+###                                                                           ###
+###     You should have received a copy of the GNU General Public License     ###
+###     along with this program.  If not, see <http://www.gnu.org/licenses/>. ###
+###                                                                           ###
+#################################################################################
 
 #check input
 if [ -z $3 ] ; then
