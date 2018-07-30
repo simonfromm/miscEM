@@ -1,11 +1,24 @@
 #!/bin/bash
 
-################################################
-###Simon Fromm, UC Berkeley 2018             ###
-###                                          ###
-###Bash script to run ctffind4 in batch mode ###
-###use at OWN RISK!                          ### 
-################################################
+#################################################################################
+### Simon Fromm, UC Berkeley 2018                                             ###
+###                                                                           ###
+### Script to run Ctffind4 in batch mode.                                     ###
+###                                                                           ###
+### This program is free software: you can redistribute it and/or modify      ###
+###     it under the terms of the GNU General Public License as published by  ###
+###     the Free Software Foundation, either version 3 of the License, or     ###
+###     (at your option) any later version.                                   ###
+###                                                                           ###
+###     This program is distributed in the hope that it will be useful,       ###
+###     but WITHOUT ANY WARRANTY; without even the implied warranty of        ###
+###     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         ###
+###     GNU General Public License for more details.                          ### 
+###                                                                           ###
+###     You should have received a copy of the GNU General Public License     ###
+###     along with this program.  If not, see <http://www.gnu.org/licenses/>. ###
+###                                                                           ###
+#################################################################################
 
 #check input parameters
 if [ -z $9 ] ; then
@@ -54,7 +67,6 @@ MICS=$*
 #set 'yes' string for comparison
 YES=yes
 
-
 #generate file list
 rm -f filelist_ctf.dat
 for f in $MICS ; do
@@ -99,8 +111,7 @@ PROC=`ls -l tmp_* | wc -l`
 
 i=0
 
-while [ $i -lt $((PROC-1)) ]
-do
+while [ $i -lt $((PROC-1)) ] ; do
 echo \#\!'/bin/bash' >> script_tmp_$i.sh
 echo "MICS0$i=\`cat tmp_$i\`" >> script_tmp_$i.sh
 echo 'for f in $MICS0'"$i"' ; do' >> script_tmp_$i.sh
