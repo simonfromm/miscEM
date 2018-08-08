@@ -31,7 +31,10 @@ echo "Class occupancy script for Relion, Kyle Morris University of California Be
 echo ""
 echo "This will plot the class occupancy from *_model.star files from Relion 2.0"
 echo "Note: This script uses Eye Of Gnome to display the class_occupancy.png"
+echo ""
+echo "Note: Modified by Simon Fromm, University of California, Berkeley 2018"
 echo "*************************************************************************"
+
 
 ##Test if input variables are empty (if or statement)
 
@@ -73,7 +76,7 @@ TOTITER=$((TOTITER-1))
 LASTITER=`ls -l *model.star | tail -1 | awk '{print $9}'`
 
 #define class numbers and plotting range
-if [[ -z $2 ]] || [[ -z $3 ]] ; then
+if [[ -z $FIRSTCL ]] || [[ -z $LASTCL ]] ; then
  echo ""
  echo "No variables provided analysing all classes"
  echo ""
@@ -81,7 +84,7 @@ if [[ -z $2 ]] || [[ -z $3 ]] ; then
  LASTCL=`cat $LASTITER | grep "_rlnNrClasses" | awk '{print $2}' | sed -e 's/#//'`
 else
  echo ""
- echo "Analysing all classes, but plotting" $2 "to" $3
+ echo "Analysing all classes, but plotting" $FIRSTCL "to" $LASTCL
  echo ""
 fi
 
