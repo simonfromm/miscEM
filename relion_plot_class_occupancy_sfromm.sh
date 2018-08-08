@@ -78,7 +78,7 @@ if [[ -z $2 ]] || [[ -z $3 ]] ; then
  echo "No variables provided analysing all classes"
  echo ""
  FIRSTCL=1
- LASTCL=`cat $LASTITER | grep @ | wc -l`
+ LASTCL=`cat $LASTITER | grep "_rlnNrClasses" | awk '{print $2}' | sed -e 's/#//'`
 else
  echo ""
  echo "Analysing all classes, but plotting" $2 "to" $3
