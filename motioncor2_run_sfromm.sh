@@ -28,26 +28,37 @@
 
 if [[ -z $1 ]] ; then
   echo ""
-  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6)"
+  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8)"
   echo ""
   echo "(1) = apix (A/pix); superresolution pixel size if frames where recorded in superresolution!"
-  echo "(2) = dose (e/A/frame)"
-  echo "(3) = frames directory"
-  echo "(4) = input extension (i.e. tif)"
-  echo "(5) = output extension (i.e. mrc)"
-  echo "(6) = gpu id (i.e. 0 1 ...)"
+  echo "(2) = acceleration voltage (kV)"
+  echo "(3) = dose (e/A^2/frame)"
+  echo "(4) = binning factor"
+  echo "(5) = frames directory"
+  echo "(6) = input extension (i.e. tif)"
+  echo "(7) = output extension (i.e. mrc)"
+  echo "(8) = gpu id (i.e. 0 1 ...)"
   echo ""
 
   exit
 fi
 
 apix=$1
-dose=$2
-dir=$3
-
-ext=$4
-ext2=$5
-gpu=$6
+shift
+volt=$1
+shift
+dose=$1
+shift
+bin=$1
+shift
+dir=$1
+shift
+ext=$1
+shift
+ext2=$1
+shift
+gpu=$1
+shift
 suffix="cor2"
 
 motioncor2exe="/usr/local/software/bin/motioncor2"
@@ -99,7 +110,7 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Patch 5 5 -Iter 10 -Tol 0.5 -Throw 0 -kV 200 -PixSize $apix -FmDose $dose -FtBin 2.0 -Gpu $gpu
+    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Patch 5 5 -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Gpu $gpu
    fi
 
    i=$((i+1))
