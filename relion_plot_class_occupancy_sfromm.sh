@@ -73,7 +73,7 @@ TOTITER=`ls -l *model.star | wc -l`
 TOTITER=$((TOTITER-1))
 
 #set most current iteration
-LASTITER=`ls -l *model.star | tail -1 | awk '{print $9}'`
+LASTITER=`ls -lrt *model.star | tail -1 | awk '{print $9}'`
 
 #define class numbers and plotting range
 if [[ -z $FIRSTCL ]] || [[ -z $LASTCL ]] ; then
@@ -93,9 +93,11 @@ mkdir -p class_occupancy/model_star_backup
 cp -r *model.star class_occupancy/model_star_backup
 
 #generate data file for gnuplot
-for f in `ls *model.star`
+i=0
+for f in `ls -rt *model.star`
 do
- relion_star_printtable $f data_model_classes _rlnClassDistribution > ${f%.*}_occup.dat
+ relion_star_printtable $f data_model_classes _rlnClassDistribution > ${i}_${f%.*}_occup.dat
+ i=$((i+1))
 done
 
 paste *_occup.dat > class_occupancy_raw.dat
