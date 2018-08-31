@@ -96,8 +96,14 @@ cp -r *model.star class_occupancy/model_star_backup
 i=0
 for f in `ls -rt *model.star`
 do
- relion_star_printtable $f data_model_classes _rlnClassDistribution > ${i}_${f%.*}_occup.dat
- i=$((i+1))
+ if [[ $i -lt 10 ]]
+ then
+  relion_star_printtable $f data_model_classes _rlnClassDistribution > 0${i}_${f%.*}_occup.dat
+  i=$((i+1))
+ else
+  relion_star_printtable $f data_model_classes _rlnClassDistribution > ${i}_${f%.*}_occup.dat
+  i=$((i+1))
+ fi
 done
 
 paste *_occup.dat > class_occupancy_raw.dat
