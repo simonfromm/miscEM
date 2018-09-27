@@ -23,6 +23,8 @@
 ###check input
 if [ -z $2 ] ; then
  echo ""
+ echo "Script to fouriercrop micrographs"
+ echo "ATTENTION: if executed in the directory with the original micrographs, they are overwritten by the fouriercropped ones!!!"
  echo "Variables empty, usage is ${0##*/} (1) (2) ..."
  echo ""
  echo "(1) = binning factor ('1' for no binning)"
@@ -49,15 +51,7 @@ then
  for f in $mics ; do
    echo $f >> mics${i}.list
  done
- FOLDER=`cat mics${i}.list | head -1`
- FOLDER=${FOLDER%/*}
- ls -l *.png | awk '{print $9}' | sed -e 's/.png/.mrc/g' >> mics_present.tmp
- for f in `cat mics_present.tmp` ; do
-  echo ${FOLDER}/${f} >> mics_present.list
- done
- comm -3 mics_present.list mics${i}.list >> mics_new.list
- rm -f mics_present.tmp
- rm -f mics_present.list
+ comm -3 mics${x}.list mics${i}.list >> mics_new.list
 else
  i=1
  for f in $mics ; do
@@ -66,36 +60,33 @@ else
  cp mics${i}.list mics_new.list
 fi
 
-###ask if the number of new png files to convert is reasonable
+###ask if the number of new mrc files to bin is reasonable
 NEW=`cat mics_new.list | wc -l`
 echo "#############################################"
-echo A total of ${NEW} mrc files will be converted into png files.
+echo "A total of ${NEW} mrc files will fouriercropped (binned) by a factor of $bin"
 echo "#############################################"
 read -p "press [Enter] key to confirm and run script..."
 
 ###conversion
 while read p ; do
- e2proc2d.py $p ${p##*/}.png --meanshrink $bin --outmode uint8
+ e2proc2d.py $p ${p##*/} --fouriershrink $bin
 done < mics_new.list
 
-###rename png files
-rename 's/.mrc//' *.mrc.png
-
 ###check if all png files where generated
-PNG=`ls -l *.png | wc -l`
+CROP=`ls -l *.mrc | wc -l`
 TOT=`cat mics${i}.list | wc -l`
 
 rm -f mics_new.list
 
-if [ $PNG -eq $TOT ] ; then
+if [ $CROP -eq $TOT ] ; then
  echo
- echo "$NEW micrographs have been newley converted into png files with binning ${bin}"
- echo "A total of $TOT micrographs are converted into png files"
+ echo "$NEW micrographs have been newly fouriercropped by a factor of ${bin}"
+ echo "A total of $TOT micrographs are fouriercropped"
  echo
 else
  echo
- echo "Number of input mrc files ($TOT) and number png files in folder ($PNG) are not equal"
- echo "Either the conversion failed, or png files where already present."
+ echo "Number of input mrc files ($TOT) and number mrc files in folder ($CROP) are not equal"
+ echo "Either the conversion failed, or mrc files where already present."
  echo 
 fi
 

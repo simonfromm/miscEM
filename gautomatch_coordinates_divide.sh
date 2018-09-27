@@ -3,8 +3,7 @@
 #################################################################################
 ### Simon Fromm, UC Berkeley 2018                                             ###
 ###                                                                           ###
-### Script to generate gridmap montage from SerialEM stack. Stack must have   ###
-###     .st extension and accompanying .st.mdoc file.                         ###
+### Script to divide coordinates picked by gautomatch by a specified factor   ###
 ###                                                                           ###
 ### This program is free software: you can redistribute it and/or modify      ###
 ###     it under the terms of the GNU General Public License as published by  ###
@@ -21,31 +20,35 @@
 ###                                                                           ###
 #################################################################################
 
-#check if input is correct
-if [ -z $1 ] ; then
+#check input
+if [ -z $2 ] ; then
  echo
- echo 'Script to generate stiched gridmap from SerialEM stack'
- echo "Usage: ${0##*/} (1) ..."
- echo 
- echo '		(1) gridmap(s) with .st extension; wild cards allowed'
+ echo 'Script to devide gauotmatch coordinates by a defined factor'
+ echo 'ATTENTION: needs to be executed outside the directory with the original _automatch.star files'
  echo
- echo 'exiting...'
+ echo "Usage ${0##*/} (1) (2)"
+ echo '(1) division factor'
+ echo '(2) _automatch.star files to be divided'
+ echo
+ echo 'exiting now...'
+ echo
  exit
 fi
 
-#load EMAN2 environment
-export PATH=/usr/local/software/EMAN2/bin:$PATH
-export LD_PRELOAD=/usr/local/software/EMAN2/lib/libmpi.so
+#set variables
+FACTOR=$1
+shift
+FILES=$*
+shift
 
-#do stitching with blendmont from IMOD package
-for f in $*
+#do division
+for f in $FILES
 do
- extractpieces -mdoc $f ${f%%.*}.pl
- #blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -very -xcorr -rootname $PWD
- blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -xcorr -rootname $PWD
- e2proc2d.py ${f%%.*}.mrc ${f%%.*}.png --meanshrink 8 --outmode uint8
+ cat $f | head -9 >> tmp1.star
+ cat $f | awk '{if(NR>9) print $1/2, $2/2, $3, $4, $5}' >> tmp2.star
+ cat tmp1.star tmp2.star >> ${f##*/}
+ rm -f tmp1.star
+ rm -f tmp2.star
 done
 
-#clean up
-rm -f ../*.yef* ../*.ecd* ../*.xef*
 exit
