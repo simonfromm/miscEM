@@ -30,14 +30,17 @@ if [[ -z $1 ]] ; then
   echo ""
   echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8)"
   echo ""
-  echo "(1) = apix (A/pix); superresolution pixel size if frames where recorded in superresolution!"
-  echo "(2) = acceleration voltage (kV)"
-  echo "(3) = dose (e/A^2/frame)"
-  echo "(4) = binning factor"
-  echo "(5) = frames directory"
-  echo "(6) = input extension (i.e. tif)"
-  echo "(7) = output extension (i.e. mrc)"
-  echo "(8) = gpu id (i.e. 0 1 ...)"
+  echo "(1)  = apix (A/pix); superresolution pixel size if frames where recorded in superresolution!"
+  echo "(2)  = acceleration voltage (kV)"
+  echo "(3)  = dose (e/A^2/frame)"
+  echo "(4)  = binning factor"
+  echo "(5)  = frames directory"
+  echo "(6)  = input extension (e.g. tif)"
+  echo "(7)  = output extension (e.g. mrc)"
+  echo "(8)  = Patches for local alignment (e.g 5 5)"
+  echo "(9)  = Number of Frames to group to increase S/N"
+  echo "(10) = write aligned stack? (0=NO, 1=YES)"
+  echo "(11) = gpu id (i.e. 0 1 ...)"
   echo ""
 
   exit
@@ -56,6 +59,12 @@ shift
 ext=$1
 shift
 ext2=$1
+shift
+patch=$1
+shift
+group=$1
+shift
+stack=$1
 shift
 gpu=$1
 shift
@@ -110,7 +119,7 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Patch 5 5 -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Gpu $gpu
+    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Patch ${patch} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -OutStack ${stack} -Group ${group} -Gpu $gpu
    fi
 
    i=$((i+1))

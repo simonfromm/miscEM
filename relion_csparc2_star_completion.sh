@@ -96,10 +96,11 @@ cat $TARGET | grep @ | awk -v X=$IMGCOL '{print $X}' | sed -e 's/@/@ /g' -e 's/\
 grep -Ff img_mic_target.tmp $SOURCE >> particles_new.tmp
 
 ####prepare header for new starfile
-HEADERLINES=`cat $SOURCE | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
-HEADERLINES=$(( HEADERLINES + 6 ))
+PARLINES=`cat $SOURCE | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
+HEADER=`cat $SOURCE | awk '{if($1=="loop_") print NR}'`
+HEADERLINES=$(( PARLINES + HEADER ))
 
-awk -v X=$HEADERLINES '{if(NR<X) print $0}' $SOURCE >> header.tmp
+awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $SOURCE >> header.tmp
 
 ###combine header and data
 cat header.tmp particles_new.tmp >> particles_from_csparc2.star
