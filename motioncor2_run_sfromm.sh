@@ -28,18 +28,18 @@
 
 if [[ -z $1 ]] ; then
   echo ""
-  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8)"
+  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8) (9) (10) (11)"
   echo ""
   echo "(1)  = apix (A/pix); superresolution pixel size if frames where recorded in superresolution!"
   echo "(2)  = acceleration voltage (kV)"
   echo "(3)  = dose (e/A^2/frame)"
   echo "(4)  = binning factor"
   echo "(5)  = frames directory"
-  echo "(6)  = input extension (e.g. tif)"
-  echo "(7)  = output extension (e.g. mrc)"
-  echo "(8)  = Patches for local alignment (e.g 5 5)"
-  echo "(9)  = Number of Frames to group to increase S/N"
-  echo "(10) = write aligned stack? (0=NO, 1=YES)"
+  echo "(6)  = gain ref (converted to mrc using 'dm2mrc')"
+  echo "(7)  = input extension (e.g. tif)"
+  echo "(8)  = output extension (e.g. mrc)"
+  echo "(9)  = Patches for local alignment (e.g 5 5)"
+  echo "(10)  = Number of Frames to group to increase S/N"
   echo "(11) = gpu id (i.e. 0 1 ...)"
   echo ""
 
@@ -56,11 +56,15 @@ bin=$1
 shift
 dir=$1
 shift
+gain=$1
+shift
 ext=$1
 shift
 ext2=$1
 shift
-patch=$1
+patchx=$1
+shift
+patchy=$1
 shift
 group=$1
 shift
@@ -104,7 +108,7 @@ while read p; do
    name=$(basename $file .$ext)
 
    orig=$dir/"$name".$ext
-   new=$dir/"$name"_"$suffix".$ext2
+   new="$name"_"$suffix".$ext2
 
    if [ -e $new ]; then
     echo ""
@@ -119,13 +123,13 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Patch ${patch} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -OutStack ${stack} -Group ${group} -Gpu $gpu
+    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -Gpu $gpu
    fi
 
    i=$((i+1))
 done < filelist.dat
 
-#rm filelist.dat
+rm filelist.dat
 
 echo "//////////////////////"
 echo "Motioncorr2 complete"
