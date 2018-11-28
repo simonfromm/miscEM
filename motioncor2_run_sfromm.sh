@@ -35,12 +35,13 @@ if [[ -z $1 ]] ; then
   echo "(3)  = dose (e/A^2/frame)"
   echo "(4)  = binning factor"
   echo "(5)  = frames directory"
-  echo "(6)  = gain ref (converted to mrc using 'dm2mrc')"
+  echo "(6)  = gain ref (converted to mrc using 'dm2mrc', 'none' if already applied)"
   echo "(7)  = input extension (e.g. tif)"
   echo "(8)  = output extension (e.g. mrc)"
-  echo "(9)  = Patches for local alignment (e.g 5 5)"
-  echo "(10)  = Number of Frames to group to increase S/N"
-  echo "(11) = gpu id (i.e. 0 1 ...)"
+  echo "(9)  = Number of patches (x and y) for local alignment (e.g '5 5' for K2 and '7 5' for K3)"
+  echo "(10)  = Number of subsequent frames to group to increase S/N"
+  echo "(11)  = Should aligned stack be written out? (0=NO; 1=YES)"
+  echo "(12) = gpu id (i.e. 0 1 ...)"
   echo ""
 
   exit
@@ -75,10 +76,6 @@ shift
 suffix="cor2"
 
 motioncor2exe="/usr/local/software/bin/motioncor2"
-
-echo '##############################################################################'
-echo 'Usage - motioncor2_run.sh apix dose frame_directory input.ext output.ext gpu_id'
-echo '##############################################################################'
 
 ############################################################################
 ############################################################################
