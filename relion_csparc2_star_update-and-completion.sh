@@ -183,7 +183,7 @@ rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relio
 ###good bye message
 echo ''
 echo '######################################'
-echo "$PARTIN particles from $CSPARC have been searched for in $RELION and $PARTOUT have been found and written to particles_from_csparc2.star with all parameters from $RELION maintained"
+echo "$PARTIN particles from $CSPARC have been searched for in $RELION and $PARTOUT have been found and written to particles_from_csparc2.star with all parameters from $CSPARC maintained and missing field from $RELION added."
 echo '######################################'
 echo ''
 
