@@ -57,7 +57,7 @@ do
  else
   cat old_star_noheader.tmp | awk -v Z=$COORD '{if($2<=Z) print $0}' > new_star_noheader.tmp
   cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
-  rm -f old_star_noheader.tmp header.tmp
+  rm -f old_star_noheader.tmp header.tmp new_star_noheader.tmp
  fi 
 done
 
