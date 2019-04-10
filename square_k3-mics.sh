@@ -23,7 +23,9 @@
 ###check input
 if [ -z $3 ] ; then
  echo ""
- echo "Variables empty, usage is ${0##*/} (1) (2) (3) ..."
+ echo "Script to pad K3 images to be squared in order to be compatible with gautomatch v0.56"
+ echo ""
+ echo "Usage is ${0##*/} (1) (2) (3) ..."
  echo ""
  echo "(1) = x dimension of input micrographs"
  echo "(2) = y dimension of input micrographs"
@@ -106,6 +108,11 @@ if [ $SQUARED -eq $TOT ] ; then
  echo "$NEW micrographs have been newley converted into png files with binning ${bin}"
  echo "A total of $TOT micrographs are converted into png files"
  echo
+ echo
+ echo "ATTENTION: Use these micrographs ONLY for gautomatch, not for any image processing."
+ echo "Don't forget to remove particle coordinates with ${X}-values greater than $COORD from the gautomatch.star files."
+ echo "You can do that by running the remove_gautomatch-coordinates.sh script."
+ echo 
 else
  echo
  echo "Number of input mrc files ($TOT) and number png files in folder ($SQUARED) are not equal"

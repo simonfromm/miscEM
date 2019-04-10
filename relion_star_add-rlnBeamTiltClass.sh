@@ -62,8 +62,7 @@ echo "_rlnBeamTiltClass #${i}" >> new_header.tmp
 ###generate file with rlnBeamTiltClass
 #define column with _rlnImageName in CSPARC file
 IMGCOL=`cat $STAR_IN | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
-CLASS=`awk -v X=${IMGCOL} '{print $X}' old_star_noheader.tmp | sed -e 's/.mrcs//g' -e 's/_/ /g' | awk '{print NF}' | head -1`
-awk -v X=${IMGCOL} '{print $X}' old_star_noheader.tmp | sed -e 's/.mrcs//g' -e 's/_/ /g' | awk -v Y=${CLASS} '{printf "%i\n", $Y}' >> rlnBeamTiltClass.tmp
+awk -v X=${IMGCOL} '{print $X}' old_star_noheader.tmp | sed -e 's/.mrcs//g' -e 's/_/ /g' | awk '{printf "%i\n", $NF}' >> rlnBeamTiltClass.tmp
 
 ###add rlnBeamTiltClass to old star file
 paste -d " " old_star_noheader.tmp rlnBeamTiltClass.tmp >> new_star_noheader.tmp
