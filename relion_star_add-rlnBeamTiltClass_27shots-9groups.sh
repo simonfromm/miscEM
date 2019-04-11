@@ -63,7 +63,7 @@ echo "_rlnBeamTiltClass #${i}" >> new_header.tmp
 ###generate file with rlnBeamTiltClass
 #define column with _rlnImageName in star file
 IMGCOL=`cat $STAR_IN | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
-awk -v X=${IMGCOL} '{print $X}' old_star_noheader.tmp | sed -e 's/.mrcs//g' -e 's/_/ /g' | awk '{printf "%i\n", $NF}' | sed -e 's/\<2\>/1/g' -e 's/\<3\>/1/g' -e 's/\<5\>/4/g' -e 's/\<6\>/4/g' -e 's/\<8\>/7/g' -e 's/\<9\>/7/g' -e 's/\<11\>/10/g' -e 's/\<12\>/10/g' -e 's/\<14\>/13/g' -e 's/\<15\>/13/g' -e 's/\<17\>/16/g' -e 's/\<18\>/16/g' -e 's/\<20\>/19/g' -e 's/\<21\>/19/g' -e 's/\<23\>/22/g' -e 's/\<24\>/22/g' -e 's/\<26\>/25/g' -e 's/\<27\>/25/g' | sed -e 's/\<4\>/2/g' | sed -e 's/\<7\>/3/g' | sed -e 's/\<10\>/4/g' | sed -e 's/\<13\>/5/g' | sed -e 's/\<16\>/6/g' | sed -e 's/\<19\>/7/g' | sed -e 's/\<22\>/8/g' | sed -e 's/\<25\>/9/g' > rlnBeamTiltClass.tmp
+awk -v X=${IMGCOL} '{print $X}' old_star_noheader.tmp | sed -e 's/.mrcs//g' -e 's/_/ /g' | awk '{printf "%i\n", $NF}' | sed -e 's/\<2\>/1/g' -e 's/\<3\>/1/g' -e 's/\<5\>/4/g' -e 's/\<6\>/4/g' -e 's/\<8\>/7/g' -e 's/\<9\>/7/g' -e 's/\<11\>/10/g' -e 's/\<12\>/10/g' -e 's/\<14\>/13/g' -e 's/\<15\>/13/g' -e 's/\<17\>/16/g' -e 's/\<18\>/16/g' -e 's/\<20\>/19/g' -e 's/\<21\>/19/g' -e 's/\<23\>/22/g' -e 's/\<24\>/22/g' -e 's/\<26\>/25/g' -e 's/\<27\>/25/g' | sed -e 's/\<4\>/2/g' | sed -e 's/\<7\>/3/g' | sed -e 's/\<10\>/4/g' | sed -e 's/\<13\>/5/g' | sed -e 's/\<16\>/6/g' | sed -e 's/\<19\>/7/g' | sed -e 's/\<22\>/8/g' | sed -e 's/\<25\>/9/g' | sed -e 's/0//g' > rlnBeamTiltClass.tmp
 
 ###add rlnBeamTiltClass to old star file
 paste -d " " old_star_noheader.tmp rlnBeamTiltClass.tmp > new_star_noheader.tmp
