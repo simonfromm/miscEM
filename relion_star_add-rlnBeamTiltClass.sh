@@ -57,7 +57,7 @@ awk -v X=$HEADERLINES '{if(NR>X) print $0}' $STAR_IN > old_star_noheader.tmp
 awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $STAR_IN > new_header.tmp
 
 i=$(( PARLINES + 1 ))
-echo "_rlnBeamTiltClass #${i}" > new_header.tmp
+echo "_rlnBeamTiltClass #${i}" >> new_header.tmp
 
 ###generate file with rlnBeamTiltClass
 #define column with _rlnImageName in CSPARC file
