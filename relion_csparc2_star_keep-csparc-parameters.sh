@@ -146,9 +146,16 @@ MISSING=`grep -Fvf csparc_parameters.tmp relion_parameters.tmp`
 i=1
 for f in $MISSING
 do
- X=`cat $RELION | grep $f | awk '{print $2}' | sed -e 's/#//g'`
- cat csparc2_particles_relion-parameters.tmp | awk -v X=$X '{print $X}' >> FIELD${i}.tmp
- i=$(( i + 1))
+ if [ $i -lt 10 ]
+ then
+  X=`cat $RELION | grep $f | awk '{print $2}' | sed -e 's/#//g'`
+  cat csparc2_particles_relion-parameters.tmp | awk -v X=$X '{print $X}' >> FIELD0${i}.tmp
+  i=$(( i + 1))
+ else
+  X=`cat $RELION | grep $f | awk '{print $2}' | sed -e 's/#//g'`
+  cat csparc2_particles_relion-parameters.tmp | awk -v X=$X '{print $X}' >> FIELD${i}.tmp
+  i=$(( i + 1))
+ fi
 done
 
 ###combine data
@@ -178,7 +185,7 @@ PARTIN=`cat csparc2_particles.tmp | wc -l`
 PARTOUT=`cat csparc2_particles_relion-parameters.tmp | wc -l`
 
 ###tidy up
-rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp
+#rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp
 
 ###good bye message
 echo ''
