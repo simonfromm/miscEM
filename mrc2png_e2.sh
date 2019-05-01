@@ -61,7 +61,8 @@ then
  for f in `cat mics_present.tmp` ; do
   echo ${FOLDER}/${f} >> mics_present.list
  done
- comm -3 mics_present.list mics${i}.list >> mics_new.list
+ comm -3 mics${x}.list mics${i}.list >> mics_new.list
+# comm -3 mics_present.list mics${i}.list >> mics_new.list
  rm -f mics_present.tmp
  rm -f mics_present.list
 else
