@@ -131,8 +131,18 @@ RPATH=`cat tmp.tmp`
 rm -f tmp.tmp
 
 #sed replacement
-cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_particles_relion-path.tmp
+cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" >> tmp.tmp
 cat csparc2_star_noheader.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_star_noheader_relion-path.tmp
+
+#different particle numbering in relion star file if it came from a polishing job
+if [ $RELION = shiny.star ]
+then
+ cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' > csparc2_particles_relion-path.tmp
+ rm -f tmp.tmp
+else
+ mv tmp.tmp csparc2_particles_relion-path.tmp
+fi
+
 ###find particles defined in csparc2_particles_relion-path.tmp in Relion star file
 grep -Ff csparc2_particles_relion-path.tmp $RELION >> csparc2_particles_relion-parameters.tmp
 

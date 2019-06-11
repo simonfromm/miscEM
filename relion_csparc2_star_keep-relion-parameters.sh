@@ -123,14 +123,23 @@ rm -f tmp.tmp
 IMGCOL=`cat $RELION | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
 RPATH=`awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $RELION | head -1 | sed -e 's/@/ /g' | awk '{print $2}' | sed -e "s/$MICSTRING/ /g" | awk '{print $1}'`
 
-echo $RPATH | sed -e 's/\//\\\//g' >> tmp.tmp
+echo $RPATH | sed -e 's/\//\\\//g' > tmp.tmp
 
 RPATH=`cat tmp.tmp`
 
 rm -f tmp.tmp
 
 #sed replacement
-cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_particles_relion-path.tmp
+cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" > tmp.tmp
+
+#different particle numbering in relion star file if it came from a polishing job
+if [ $RELION = shiny.star ]
+then
+ cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' > csparc2_particles_relion-path.tmp
+ rm -f tmp.tmp
+else
+ mv tmp.tmp csparc2_particles_relion-path.tmp
+fi
 
 #define path of _rlnImageName from SOURCE file
 #IMGCOLSOURCE=`cat $SOURCE | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
@@ -146,7 +155,7 @@ cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_particles_reli
 grep -Ff csparc2_particles_relion-path.tmp $RELION >> csparc2_particles_relion-parameters.tmp
 
 ###combine header and data
-cat header.tmp csparc2_particles_relion-parameters.tmp >> particles_from_csparc2.star
+cat header.tmp csparc2_particles_relion-parameters.tmp > particles_from_csparc2.star
 
 ###prepare nice summary
 PARTIN=`cat csparc2_particles.tmp | wc -l`
