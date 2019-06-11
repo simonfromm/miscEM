@@ -22,7 +22,7 @@
 
 
 #check input
-if [ -z $3 ] ; then
+if [ -z $4 ] ; then
  echo
  echo 'Script to convert cryosparc2 fsc files to plain txt and emdb xml files'
  echo
