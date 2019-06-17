@@ -104,9 +104,9 @@ awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $CSPARC >> csparc2_part
 awk -v X=$HEADERLINES '{if(NR>X) print $0}' $CSPARC >> csparc2_star_noheader.tmp
 
 ####prepare header for new star file from relion star file
-#PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
-#HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
-#HEADERLINES=$(( PARLINES + HEADER ))
+PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
+HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
+HEADERLINES=$(( PARLINES + HEADER ))
 
 #awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $RELION >> header.tmp
 
@@ -181,7 +181,7 @@ awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $CSPARC >> csparc_header.tmp
 i=$(( PARLINES + 1 ))
 for f in $MISSING
 do
- echo $f \#${i}>> missing_relion_fields.tmp
+ echo $f \#${i} >> missing_relion_fields.tmp
  i=$(( i + 1 ))
 done
 
