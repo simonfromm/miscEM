@@ -104,11 +104,11 @@ awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $CSPARC >> csparc2_part
 awk -v X=$HEADERLINES '{if(NR>X) print $0}' $CSPARC >> csparc2_star_noheader.tmp
 
 ####prepare header for new star file from relion star file
-PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
-HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
-HEADERLINES=$(( PARLINES + HEADER ))
+#PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
+#HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
+#HEADERLINES=$(( PARLINES + HEADER ))
 
-awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $RELION >> header.tmp
+#awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $RELION >> header.tmp
 
 ###sed replacement of csparc2 particle path by relion particle path
 #csparc2 path
@@ -137,7 +137,7 @@ cat csparc2_star_noheader.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_star_nohea
 #different particle numbering in relion star file if it came from a polishing job
 if [ $RELION = shiny.star ]
 then
- cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' > csparc2_particles_relion-path.tmp
+ cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' | awk '{print "",$0}' > csparc2_particles_relion-path.tmp
  rm -f tmp.tmp
 else
  mv tmp.tmp csparc2_particles_relion-path.tmp
@@ -192,7 +192,7 @@ cat new_header.tmp particles_from_csparc2_full-parameters.tmp >> particles_from_
 
 ###prepare nice summary
 PARTIN=`cat csparc2_particles.tmp | wc -l`
-PARTOUT=`cat csparc2_particles_relion-parameters.tmp | wc -l`
+PARTOUT=`cat particles_from_csparc2_full-parameters.tmp | wc -l`
 
 ###tidy up
 rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp

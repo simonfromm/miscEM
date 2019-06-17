@@ -135,7 +135,7 @@ cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" > tmp.tmp
 #different particle numbering in relion star file if it came from a polishing job
 if [ $RELION = shiny.star ]
 then
- cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' > csparc2_particles_relion-path.tmp
+ cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' | awk '{print "",$0}' > csparc2_particles_relion-path.tmp
  rm -f tmp.tmp
 else
  mv tmp.tmp csparc2_particles_relion-path.tmp
