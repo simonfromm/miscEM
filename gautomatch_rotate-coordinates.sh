@@ -38,16 +38,16 @@ fi
 
 for f in $*
 do
- echo "" > ${f%%.star}_rotated.star
- echo "data_" >> ${f%%.star}_rotated.star
- echo "" >> ${f%%.star}_rotated.star
- echo "loop_" >> ${f%%.star}_rotated.star
- echo "_rlnCoordinateX #1" >> ${f%%.star}_rotated.star
- echo "_rlnCoordinateY #2" >>${f%%.star}_rotated.star
- echo "_rlnAnglePsi #3" >> ${f%%.star}_rotated.star
- echo "_rlnClassNumber #4" >> ${f%%.star}_rotated.star
- echo "_rlnAutopickFigureOfMerit #5" >> ${f%%.star}_rotated.star
- cat $f | awk '{if(NR>9) print ($1-2046), (-$2+2880), $3, $4, $5}' | awk '{print -$2, $1, $3, $4, $5}' | awk '{print ($1+2880), (-$2+2046), $3, $4, $5}' >> ${f%%.star}_rotated.star
+ echo "" > ${f%%_rotated_automatch.star}_automatch.star
+ echo "data_" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "loop_" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "_rlnCoordinateX #1" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "_rlnCoordinateY #2" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "_rlnAnglePsi #3" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "_rlnClassNumber #4" >> ${f%%_rotated_automatch.star}_automatch.star
+ echo "_rlnAutopickFigureOfMerit #5" >> ${f%%_rotated_automatch.star}_automatch.star
+ cat $f | awk '{if(NR>9) print ($1-2046), (-$2+2880), $3, $4, $5}' | awk '{print -$2, $1, $3, $4, $5}' | awk '{print ($1+2880), (-$2+2046), $3, $4, $5}' >> ${f%%_rotated_automatch.star}_automatch.star
 done
 
 exit

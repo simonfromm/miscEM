@@ -90,10 +90,11 @@ read -p "press [Enter] key to confirm and run script..."
 ###conversion
 while read p ; do
  e2proc2d.py $p ${p##*/}_pad.mrc --clip=$XDIM,$PAD
- e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER --rotate=180
+ e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
+ newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
  e2proc2d.py $p ${p##*/}_square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
- e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square.mrc
- rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc
+ e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
+ rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
  rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
 done < mics_new.list
 
