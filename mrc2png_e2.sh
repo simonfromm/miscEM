@@ -50,7 +50,7 @@ mics=$*
 if [[ -e mics1.list  ]]
 then
  echo "mrc2png_e2.sh has been executed at least once in that folder; list with uniq mrc files to be converted"
- x=`ls -l *.list | tail -1 | awk '{print $9}' | sed -e 's/mics//g' -e 's/.list//g'`
+ x=`ls -l mics?.list | tail -1 | awk '{print $9}' | sed -e 's/mics//g' -e 's/.list//g'`
  i=$(( x + 1))
  for f in $mics ; do
    echo $f >> mics${i}.list

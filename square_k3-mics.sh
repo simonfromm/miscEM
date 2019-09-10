@@ -77,9 +77,6 @@ else
  cp mics${i}.list mics_new.list
 fi
 
-PAD=`echo $XDIM | awk -v Y=$YDIM '{print $1-Y}'` 
-CENTER=`echo $XDIM | awk '{print ($1/2)}'`
-
 ###ask if the number of new png files to convert is reasonable
 NEW=`cat mics_new.list | wc -l`
 echo "#############################################"
@@ -87,16 +84,38 @@ echo A total of ${NEW} mrc files will be converted into png files.
 echo "#############################################"
 read -p "press [Enter] key to confirm and run script..."
 
+#ceck if x or y are higher (if the micrograph is vertical or horizontally orientated)
+if [[ $XDIM -gt $YDIM ]]
+then
+ PAD=`echo $XDIM | awk -v Y=$YDIM '{print $1-Y}'` 
+ CENTER=`echo $XDIM | awk '{print ($1/2)}'`
+
 ###conversion
-while read p ; do
- e2proc2d.py $p ${p##*/}_pad.mrc --clip=$XDIM,$PAD
- e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
- newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
- e2proc2d.py $p ${p##*/}_square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
- e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
- rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
- rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
-done < mics_new.list
+ while read p ; do
+  e2proc2d.py $p ${p##*/}_pad.mrc --clip=$XDIM,$PAD
+  e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
+  newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
+  e2proc2d.py $p ${p##*/}_square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
+  e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
+  rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
+  rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
+ done < mics_new.list
+else
+ PAD=`echo $YDIM | awk -v X=$XDIM '{print $1-X}'` 
+ CENTER=`echo $YDIM | awk '{print ($1/2)}'`
+
+###conversion
+ while read p ; do
+  e2proc2d.py $p ${p##*/}_pad.mrc --clip=$PAD,$YDIM
+  e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$YDIM,$YDIM,$CENTER,$CENTER
+  newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
+  e2proc2d.py $p ${p##*/}_square.mrc --clip=$YDIM,$YDIM,$CENTER,$CENTER
+  e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
+  #rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
+  rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
+ done < mics_new.list
+fi
+
 
 ###check if all png files where generated
 SQUARED=`ls -l *_squared.mrc | wc -l`

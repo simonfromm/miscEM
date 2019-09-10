@@ -36,12 +36,14 @@ if [[ -z $1 ]] ; then
   echo "(4)  = binning factor"
   echo "(5)  = frames directory"
   echo "(6)  = gain ref (converted to mrc using 'dm2mrc', 'none' if already applied)"
-  echo "(7)  = input extension (e.g. tif)"
-  echo "(8)  = output extension (e.g. mrc)"
-  echo "(9)  = Number of patches (x and y) for local alignment (e.g '5 5' for K2 and '7 5' for K3)"
-  echo "(10)  = Number of subsequent frames to group to increase S/N"
-  echo "(11)  = Should aligned stack be written out? (0=NO; 1=YES)"
-  echo "(12) = gpu id (i.e. 0 1 ...)"
+  echo "(7)  = Rotate gain reference counter-clockwise: 0 - no rotation, 1 - rotate 90 degree, 2 - rotate 180 degree, 3 - rotate 270 degree"
+  echo "(8)  = Flip gain reference after gain rotation: 0 - no flipping, 1 - flip upside down, 2 - flip left right."
+  echo "(9)  = input extension (e.g. tif)"
+  echo "(10)  = output extension (e.g. mrc)"
+  echo "(11)  = Number of patches (x and y) for local alignment (e.g '5 5' for K2 and '7 5' for K3)"
+  echo "(12)  = Number of subsequent frames to group to increase S/N"
+  echo "(13)  = Should aligned stack be written out? (0=NO; 1=YES)"
+  echo "(14) = gpu id (i.e. 0 1 ...)"
   echo ""
 
   exit
@@ -58,6 +60,10 @@ shift
 dir=$1
 shift
 gain=$1
+shift
+rotation=$1
+shift
+flip=$1
 shift
 ext=$1
 shift
@@ -120,7 +126,7 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -Gpu $gpu
+    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -Gpu $gpu
    fi
 
    i=$((i+1))
