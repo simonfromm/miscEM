@@ -52,35 +52,40 @@ shift
 MICS=$*
 
 ###check if mics.list already exists potenially existing file list
-if [[ -e mics1.list  ]]
-then
- echo "mrc2png_e2.sh has been executed at least once in that folder; list with uniq mrc files to be converted"
- x=`ls -l *.list | tail -1 | awk '{print $9}' | sed -e 's/mics//g' -e 's/.list//g'`
- i=$(( x + 1))
- for f in $mics ; do
-   echo $f >> mics${i}.list
- done
- FOLDER=`cat mics${i}.list | head -1`
- FOLDER=${FOLDER%/*}
- ls -l *.png | awk '{print $9}' | sed -e 's/.png/.mrc/g' >> mics_present.tmp
- for f in `cat mics_present.tmp` ; do
-  echo ${FOLDER}/${f} >> mics_present.list
- done
- comm -3 mics_present.list mics${i}.list >> mics_new.list
- rm -f mics_present.tmp
- rm -f mics_present.list
-else
- i=1
- for f in $MICS ; do
-  echo $f >> mics${i}.list
- done
- cp mics${i}.list mics_new.list
-fi
+#if [[ -e mics1.list  ]]
+#then
+# echo "mrc2png_e2.sh has been executed at least once in that folder; list with uniq mrc files to be converted"
+# x=`ls -l *.list | tail -1 | awk '{print $9}' | sed -e 's/mics//g' -e 's/.list//g'`
+# i=$(( x + 1))
+# for f in $mics ; do
+#   echo $f >> mics${i}.list
+# done
+# FOLDER=`cat mics${i}.list | head -1`
+# FOLDER=${FOLDER%/*}
+# ls -l *.png | awk '{print $9}' | sed -e 's/.png/.mrc/g' >> mics_present.tmp
+# for f in `cat mics_present.tmp` ; do
+#  echo ${FOLDER}/${f} >> mics_present.list
+# done
+# comm -3 mics_present.list mics${i}.list >> mics_new.list
+# rm -f mics_present.tmp
+# rm -f mics_present.list
+#else
+# i=1
+# for f in $MICS ; do
+#  echo $f >> mics${i}.list
+# done
+# cp mics${i}.list mics_new.list
+#fi
 
-###ask if the number of new png files to convert is reasonable
-NEW=`cat mics_new.list | wc -l`
+###ask if the number of new files to convert is reasonable
+for f in $MICS
+do
+ echo $f >> count.list
+done
+NEW=`cat count.list | wc -l`
+rm -f count.list
 echo "#############################################"
-echo A total of ${NEW} mrc files will be converted into png files.
+echo A total of ${NEW} mrc files will be squared.
 echo "#############################################"
 read -p "press [Enter] key to confirm and run script..."
 
@@ -91,7 +96,8 @@ then
  CENTER=`echo $XDIM | awk '{print ($1/2)}'`
 
 ###conversion
- while read p ; do
+ for p in $MICS
+ do
   e2proc2d.py $p ${p##*/}_pad.mrc --clip=$XDIM,$PAD
   e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$XDIM,$XDIM,$CENTER,$CENTER
   newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
@@ -99,45 +105,33 @@ then
   e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
   rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
   rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
- done < mics_new.list
+ done
 else
  PAD=`echo $YDIM | awk -v X=$XDIM '{print $1-X}'` 
  CENTER=`echo $YDIM | awk '{print ($1/2)}'`
 
 ###conversion
- while read p ; do
+ for p in $MICS
+ do
   e2proc2d.py $p ${p##*/}_pad.mrc --clip=$PAD,$YDIM
   e2proc2d.py ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc --clip=$YDIM,$YDIM,$CENTER,$CENTER
   newstack --rotate 180 ${p##*/}_pad-square.mrc ${p##*/}_pad-square_rot.mrc
   e2proc2d.py $p ${p##*/}_square.mrc --clip=$YDIM,$YDIM,$CENTER,$CENTER
   e2proc2d.py ${p##*/}_square.mrc ${p##*/}_square-pad.mrc --addfile ${p##*/}_pad-square_rot.mrc
-  #rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
+  rm -f ${p##*/}_pad.mrc ${p##*/}_pad-square.mrc ${p##*/}_square.mrc ${p##*/}_pad-square_rot.mrc
   rename 's/.mrc_square-pad.mrc/_squared.mrc/' ${p##*/}_square-pad.mrc
- done < mics_new.list
+ done
 fi
-
 
 ###check if all png files where generated
-SQUARED=`ls -l *_squared.mrc | wc -l`
-TOT=`cat mics${i}.list | wc -l`
+#SQUARED=`ls -l *_squared.mrc | wc -l`
+#TOT=`cat mics${i}.list | wc -l`
 
-rm -f mics_new.list
+#rm -f mics_new.list
 
-if [ $SQUARED -eq $TOT ] ; then
- echo
- echo "$NEW micrographs have been newley converted into png files with binning ${bin}"
- echo "A total of $TOT micrographs are converted into png files"
- echo
- echo
- echo "ATTENTION: Use these micrographs ONLY for gautomatch, not for any image processing."
- echo "Don't forget to remove particle coordinates with ${X}-values greater than $COORD from the gautomatch.star files."
- echo "You can do that by running the remove_gautomatch-coordinates.sh script."
- echo 
-else
- echo
- echo "Number of input mrc files ($TOT) and number png files in folder ($SQUARED) are not equal"
- echo "Either the conversion failed, or png files where already present."
- echo 
-fi
-
+echo
+echo "ATTENTION: Use the generatd *_sqared.mrc micrographs ONLY for gautomatch, not for any image processing."
+echo "Don't forget to remove particle coordinates with ${X}-values greater than $COORD from the gautomatch.star files."
+echo "You can do that by running the remove_gautomatch-coordinates.sh script."
+echo ''
 exit
