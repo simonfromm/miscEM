@@ -197,8 +197,12 @@ PARTOUT=`cat particles_from_csparc2_full-parameters.tmp | wc -l`
 ###test if micrograph and image names fit; if now spit out error message but still give outputs for trouble shooting
 IMGCOL=`cat particles_from_csparc2.star | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
 MICCOL=`cat particles_from_csparc2.star | grep _rlnMicrographName | awk '{print $2}' | sed -e 's/#//g'`
-TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
-
+if [ $RELION = shiny.star ]
+then
+ TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' -e 's/_shiny//g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+else
+ TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+fi
 
 ###tidy up
 rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp
