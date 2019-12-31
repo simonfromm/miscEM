@@ -49,8 +49,8 @@ MW=$1
 shift
 BOXSIZE=$1
 
-OUTBASE=${FULL##*/}
-OUTBASE=${OUTBASE%*.mrc}
+OUTBASE=${HALF1##*/}
+OUTBASE=${OUTBASE%*_half_1.mrc}
 
 if [ -e $MW ]
 then

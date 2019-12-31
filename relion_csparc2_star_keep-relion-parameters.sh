@@ -91,6 +91,17 @@ shift
 MICSTRING=$1
 shift
 
+###test if optics table exists in original star file
+OPTICS=`cat $RELION | grep data_optics | wc -l`
+
+#remove optics from the original star file if present
+if [ $OPTICS -eq 1 ]
+then
+ mv $RELION ${RELION}_ori
+ DATA=`cat ${RELION}_ori | awk '{if($1=="data_particles") print NR}'`
+ cat ${RELION}_ori | awk -v X=$DATA '{if(NR>=X) print $0}' > $RELION
+fi
+
 ###make list of particles from CSPARC based on _rlnImageName
 #define column with _rlnImageName in CSPARC file
 IMGCOL=`cat $CSPARC | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
@@ -141,16 +152,6 @@ else
  mv tmp.tmp csparc2_particles_relion-path.tmp
 fi
 
-#define path of _rlnImageName from SOURCE file
-#IMGCOLSOURCE=`cat $SOURCE | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
-#IMGPATH=`cat $SOURCE | grep @ | head -1 | awk -v X=$IMGCOLSOURCE '{print $X}' | sed -e 's/@/ /g' | awk '{print $2}'`
-#IMGPATH=`dirname $IMGPATH`
-
-
-
-#MICCOL=`cat $TARGET | grep @ | awk -v X=$IMGCOL '{print $X}' | sed -e 's/@/ /g' -e 's/\// /g' | awk '{print NF}' | head -1`
-#cat $TARGET | grep @ | awk -v X=$IMGCOL '{print $X}' | sed -e 's/@/@ /g' -e 's/\// /g' | awk -v X=$MICCOL -v Y=$IMGPATH '{print $1 Y "/" $X}' >> img_mic_target.tmp
-
 ###find particles defined in csparc2_particles_relion-path.tmp in Relion star file
 grep -Ff csparc2_particles_relion-path.tmp $RELION >> csparc2_particles_relion-parameters.tmp
 
@@ -163,6 +164,16 @@ PARTOUT=`cat csparc2_particles_relion-parameters.tmp | wc -l`
 
 ###tidy up
 rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp
+
+###if optics table exists in original star file, add it back
+if [ $OPTICS -eq 1 ]
+then
+ mv particles_from_csparc2.star tmp.star
+ cat ${RELION}_ori | awk -v X=$DATA '{if(NR<X) print $0}' > optics.tmp
+ cat optics.tmp tmp.star | sed -e 's/data_images/data_particles/' > particles_from_csparc2.star
+ rm -f optics.tmp tmp.star $RELION
+ mv ${RELION}_ori $RELION
+fi
 
 ###good bye message
 echo ''

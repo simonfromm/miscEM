@@ -3,8 +3,8 @@
 #################################################################################
 ### Simon Fromm, UC Berkeley 2019                                             ###
 ###                                                                           ###
-### Script to find select particles from a relion star file based on a        ###
-###     selection from cryoSPARCv2                                            ###
+### Script to select particles from a relion star file based on a             ###
+###     cryoSPARCv2 cs file which has been converted to star                  ###
 ###                                                                           ###
 ### This program is free software: you can redistribute it and/or modify      ###
 ###     it under the terms of the GNU General Public License as published by  ###
@@ -91,6 +91,17 @@ shift
 MICSTRING=$1
 shift
 
+###test if optics table exists in original star file
+OPTICS=`cat $RELION | grep data_optics | wc -l`
+
+#remove optics from the original star file if present
+if [ $OPTICS -eq 1 ]
+then
+ mv $RELION ${RELION}_ori
+ DATA=`cat ${RELION}_ori | awk '{if($1=="data_particles") print NR}'`
+ cat ${RELION}_ori | awk -v X=$DATA '{if(NR>=X) print $0}' > $RELION
+fi
+
 ###make list of particles from CSPARC based on _rlnImageName
 #define column with _rlnImageName in CSPARC file
 IMGCOL=`cat $CSPARC | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
@@ -108,7 +119,6 @@ PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
 HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
 HEADERLINES=$(( PARLINES + HEADER ))
 
-#awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $RELION >> header.tmp
 
 ###sed replacement of csparc2 particle path by relion particle path
 #csparc2 path
@@ -150,7 +160,7 @@ grep -Ff csparc2_particles_relion-path.tmp $RELION >> csparc2_particles_relion-p
 cat $RELION | grep _rln | awk '{print $1}' >> relion_parameters.tmp
 cat $CSPARC | grep _rln | awk '{print $1}' >> csparc_parameters.tmp
 
-MISSING=`grep -Fvf csparc_parameters.tmp relion_parameters.tmp`
+MISSING=`grep -Fvxf csparc_parameters.tmp relion_parameters.tmp`
 
 #make one file for each missing column
 i=1
@@ -206,6 +216,16 @@ fi
 
 ###tidy up
 rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp
+
+###if optics table exists in original star file, add it back
+if [ $OPTICS -eq 1 ]
+then
+ mv particles_from_csparc2.star tmp.star
+ cat ${RELION}_ori | awk -v X=$DATA '{if(NR<X) print $0}' > optics.tmp
+ cat optics.tmp tmp.star | sed -e 's/data_images/data_particles/' > particles_from_csparc2.star
+ rm -f optics.tmp tmp.star $RELION
+ mv ${RELION}_ori $RELION
+fi
 
 ###good bye message
 if [ $TEST = "FALSE" ]
