@@ -38,6 +38,11 @@ shift
 NAME=$1
 shift
 
+#split data in bigger 10, smaller -10, or between +-10
+cat $DATA | awk '{if($3>9.99) print $0}' > positive_hdx.tmp
+cat $DATA | awk '{if($3<-9.99) print $0}' > negative_hdx.tmp
+cat $DATA | awk '{if($3>-10&&$3<10) print $0}' > neutral_hdx.tmp
+
 #set name of gnuplot script
 DATE=`date +%F | sed -e 's/-//g'`
 SCRIPT=${DATE}_${NAME}_gnuplot.sh
@@ -56,7 +61,7 @@ echo 'gnuplot -persist <<EOF' >> $SCRIPT
 	echo "	set xlabel" \""\#aa"\" >> $SCRIPT
 	echo "	set ylabel" \""HDX difference"\" >> $SCRIPT
 	echo "	set style fill solid 1.0 border 0" >> $SCRIPT
-	echo "  plot 0 ls -1, -10 ls 0, 10 ls 0, '$DATA' u 1:3:4:2 w boxerrorbars lc rgb" \""#1e90ff"\" >> $SCRIPT
+	echo "  plot 0 ls -1, -10 ls 0, 10 ls 0, 'negative_hdx.tmp' u 1:3:4:2 w boxerrorbars lc rgb" \""#1e90ff"\" ", 'positive_hdx.tmp' u 1:3:4:2 w boxerrorbars lc rgb " \""#ffcccb"\" ", 'neutral_hdx.tmp' u 1:3:4:2 w boxerrorbars lc rgb " \""#d3d3d3"\" >> $SCRIPT
 	echo '	exit' >> $SCRIPT
 	echo 'EOF' >> $SCRIPT
 	echo 'exit' >> $SCRIPT
@@ -64,6 +69,8 @@ echo 'gnuplot -persist <<EOF' >> $SCRIPT
 chmod +x $SCRIPT
 
 ./$SCRIPT
+
+rm -f positive_hdx.tmp negative_hdx.tmp
 
 #	echo "	set x2range[1:$LENGTH]" >>! tmp.csh
 #	echo "	set x2tics axis mirror format" \"" "\" >>! tmp.csh
