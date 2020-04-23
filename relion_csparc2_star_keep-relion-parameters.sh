@@ -91,6 +91,17 @@ shift
 MICSTRING=$1
 shift
 
+###test if optics table exists in star file converted from cryosparc with pyem
+OPTICS=`cat $CSPARC | grep data_optics | wc -l`
+
+#remove optics from the original star file if present
+if [ $OPTICS -eq 1 ]
+then
+ mv $CSPARC ${CSPARC}_ori
+ DATA=`cat ${CSPARC}_ori | awk '{if($1=="data_particles") print NR}'`
+ cat ${CSPARC}_ori | awk -v X=$DATA '{if(NR>=X) print $0}' > $CSPARC
+fi
+
 ###test if optics table exists in original star file
 OPTICS=`cat $RELION | grep data_optics | wc -l`
 
@@ -173,6 +184,12 @@ then
  cat optics.tmp tmp.star | sed -e 's/data_images/data_particles/' > particles_from_csparc2.star
  rm -f optics.tmp tmp.star $RELION
  mv ${RELION}_ori $RELION
+fi
+
+###regenerate original csparc star file in case it had a optics table
+if [ -e ${CSPARC}_ori ]
+then
+ mv ${CSPARC}_ori $CSPARC
 fi
 
 ###good bye message
