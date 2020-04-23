@@ -35,14 +35,15 @@ if [ -z $3 ] ; then
 fi
 
 ###load eman environment
-if [ -e /usr/local/software/EMAN2/bin/e2proc2d.py ]
-then
- export PATH=/usr/local/software/EMAN2/bin:$PATH
- export LD_PRELOAD=/usr/local/software/EMAN2/lib/libmpi.so
-else
- export PATH=/usr/local/software/eman2/bin:$PATH
- export LD_PRELOAD=/usr/local/software/eman2/lib/libmpi.so
-fi
+source ~/.initialize_eman2-sphire.sh
+#if [ -e /usr/local/software/EMAN2/bin/e2proc2d.py ]
+#then
+# export PATH=/usr/local/software/EMAN2/bin:$PATH
+# export LD_PRELOAD=/usr/local/software/EMAN2/lib/libmpi.so
+#else
+# export PATH=/usr/local/software/eman2/bin:$PATH
+# export LD_PRELOAD=/usr/local/software/eman2/lib/libmpi.so
+#fi
 
 ###set variables
 XDIM=$1
