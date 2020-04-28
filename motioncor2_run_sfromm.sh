@@ -126,7 +126,7 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -Gpu $gpu
+    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -SumRange 0 0 -Gpu $gpu 
    fi
 
    i=$((i+1))
