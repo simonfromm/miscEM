@@ -24,12 +24,13 @@
 #check input
 if [ -z $3 ] ; then
  echo
- echo 'Script to remove particle coordinates above a chosen coordinate'
+ echo 'Script to remove particle coordinates above or below a chosen coordinate'
  echo
  echo "Usage ${0##*/} (1) (2) (3)"
  echo '(1) 'x' or 'y' coordinate'
  echo '(2) coordinate value'
- echo '(3) input star files'
+ echo '(3) remove coordinates <above> or <below> that value'
+ echo '(4) input star files'
  echo
  echo 'exiting now...'
  echo
@@ -39,6 +40,8 @@ fi
 X=$1
 shift
 COORD=$1
+shift
+DIREC=$1
 shift
 STAR_IN=$*
 
@@ -51,13 +54,27 @@ do
  awk -v X=$HEADERLINES '{if(NR<=X) print $0}' $f > header.tmp
  if [ $X = x ]
  then
-  cat old_star_noheader.tmp | awk -v Z=$COORD '{if($1<=Z) print $0}' > new_star_noheader.tmp
-  cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
-  rm -f old_star_noheader.tmp header.tmp
+  if [ $DIREC = above ]
+  then
+   cat old_star_noheader.tmp | awk -v Z=$COORD '{if($1<=Z) print $0}' > new_star_noheader.tmp
+   cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
+   rm -f old_star_noheader.tmp header.tmp
+  else
+   cat old_star_noheader.tmp | awk -v Z=$COORD '{if($1>=Z) print $0}' > new_star_noheader.tmp
+   cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
+   rm -f old_star_noheader.tmp header.tmp
+  fi
  else
-  cat old_star_noheader.tmp | awk -v Z=$COORD '{if($2<=Z) print $0}' > new_star_noheader.tmp
-  cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
-  rm -f old_star_noheader.tmp header.tmp new_star_noheader.tmp
+  if [ $DIREC = above ]
+  then 
+   cat old_star_noheader.tmp | awk -v Z=$COORD '{if($2<=Z) print $0}' > new_star_noheader.tmp
+   cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
+   rm -f old_star_noheader.tmp header.tmp new_star_noheader.tmp
+  else
+   cat old_star_noheader.tmp | awk -v Z=$COORD '{if($2>=Z) print $0}' > new_star_noheader.tmp
+   cat header.tmp new_star_noheader.tmp > ${f%.star}_new.star
+   rm -f old_star_noheader.tmp header.tmp new_star_noheader.tmp
+  fi
  fi 
 done
 
@@ -66,7 +83,7 @@ echo ''
 echo '######################################'
 echo "gautomatch star files have been modified and are saved as _new.star"
 echo ''
-echo "all particle coordinates with a ${X}-value greater than $COORD have been removed"
+echo "all particle coordinates with a ${X}-value $DIREC than $COORD have been removed"
 echo '######################################'
 echo ''
 

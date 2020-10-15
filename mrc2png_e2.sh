@@ -46,11 +46,12 @@ then
  x=`ls -l mics?.list | tail -1 | awk '{print $9}' | sed -e 's/mics//g' -e 's/.list//g'`
  i=$(( x + 1))
  for f in $mics ; do
-   echo $f >> mics${i}.list
+   echo $f >> mics${i}.tmp
  done
+ cat mics${i}.tmp | sort -g > mics${i}.list
  FOLDER=`cat mics${i}.list | head -1`
  FOLDER=${FOLDER%/*}
- ls -l *.png | awk '{print $9}' | sed -e 's/.png/.mrc/g' >> mics_present.tmp
+ ls -l *.png | awk '{print $9}' | sed -e 's/.png/.mrc/g' | sort -g >> mics_present.tmp
  for f in `cat mics_present.tmp` ; do
   echo ${FOLDER}/${f} >> mics_present.list
  done
@@ -58,12 +59,15 @@ then
 # comm -3 mics_present.list mics${i}.list >> mics_new.list
  rm -f mics_present.tmp
  rm -f mics_present.list
+ rm -f mics${i}.tmp
 else
  i=1
  for f in $mics ; do
-  echo $f >> mics${i}.list
+  echo $f >> mics${i}.tmp
  done
+ cat mics${i}.tmp | sort -g > mics${i}.list
  cp mics${i}.list mics_new.list
+ rm -f mics${i}.tmp
 fi
 
 ###ask if the number of new png files to convert is reasonable

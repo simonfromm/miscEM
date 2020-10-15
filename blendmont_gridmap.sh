@@ -28,30 +28,31 @@ if [ -z $1 ] ; then
  echo "Usage: ${0##*/} (1) ..."
  echo 
  echo '		(1) gridmap(s) with .st extension; wild cards allowed'
+ echo '         (2) mode: <default> or <sloppy>'
  echo
  echo 'exiting...'
  exit
 fi
 
+MODE=$1
+shift
+
 #load EMAN2 environment
-if [ -e /usr/local/software/EMAN2/bin/e2proc2d.py ]
-then
- export PATH=/usr/local/software/EMAN2/bin:$PATH
- export LD_PRELOAD=/usr/local/software/EMAN2/lib/libmpi.so
-else
- export PATH=/usr/local/software/eman2/bin:$PATH
- export LD_PRELOAD=/usr/local/software/eman2/lib/libmpi.so
-fi
+source ~/.initialize_eman2-sphire.sh && conda activate
 
 #do stitching with blendmont from IMOD package
 for f in $*
 do
  extractpieces -mdoc $f ${f%%.*}.pl
- #blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -very -xcorr -rootname $PWD
- blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -xcorr -rootname $PWD
+ if [ $MODE = default ] ; then
+  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -xcorr -rootname $PWD
+ else
+  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -very -xcorr -rootname $PWD
+ fi
  e2proc2d.py ${f%%.*}.mrc ${f%%.*}.png --meanshrink 8 --outmode uint8
 done
 
 #clean up
 rm -f ../*.yef* ../*.ecd* ../*.xef*
+
 exit
