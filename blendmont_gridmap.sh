@@ -22,13 +22,13 @@
 #################################################################################
 
 #check if input is correct
-if [ -z $1 ] ; then
+if [ -z $2 ] ; then
  echo
  echo 'Script to generate stiched gridmap from SerialEM stack'
  echo "Usage: ${0##*/} (1) ..."
  echo 
- echo '		(1) gridmap(s) with .st extension; wild cards allowed'
- echo '         (2) mode: <default> or <sloppy>'
+ echo '         (1) mode: <default> or <sloppy>'
+ echo '         (2) gridmap(s) with .st extension; wild cards allowed'
  echo
  echo 'exiting...'
  exit

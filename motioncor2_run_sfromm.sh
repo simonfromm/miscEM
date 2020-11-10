@@ -28,19 +28,19 @@
 
 if [[ -z $1 ]] ; then
   echo ""
-  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8) (9) (10) (11)"
+  echo "Variables empty, usage is $0 (1) (2) (3) (4) (5) (6) (7) (8) (9) (10) (11) (12) (13) (14)"
   echo ""
   echo "(1)  = apix (A/pix); superresolution pixel size if frames where recorded in superresolution!"
   echo "(2)  = acceleration voltage (kV)"
-  echo "(3)  = dose (e/A^2/frame)"
+  echo "(3)  = dose (e/A^2/frame); 'none' if movies have eer format"
   echo "(4)  = binning factor"
   echo "(5)  = frames directory"
-  echo "(6)  = gain ref (converted to mrc using 'dm2mrc', 'none' if already applied)"
+  echo "(6)  = gain ref (converted to mrc using 'dm2mrc' for Gatan cameras, 'none' if already applied)"
   echo "(7)  = Rotate gain reference counter-clockwise: 0 - no rotation, 1 - rotate 90 degree, 2 - rotate 180 degree, 3 - rotate 270 degree"
   echo "(8)  = Flip gain reference after gain rotation: 0 - no flipping, 1 - flip upside down, 2 - flip left right."
-  echo "(9)  = input extension (e.g. tif)"
+  echo "(9)  = input extension (e.g. tif, mrc, eer)"
   echo "(10)  = output extension (e.g. mrc)"
-  echo "(11)  = Number of patches (x and y) for local alignment (e.g '5 5' for K2 and '7 5' for K3)"
+  echo "(11)  = Number of patches (x and y) for local alignment (e.g '5 5' for K2/FalconX and '7 5' for K3)"
   echo "(12)  = Number of subsequent frames to group to increase S/N"
   echo "(13)  = Should aligned stack be written out? (0=NO; 1=YES)"
   echo "(14) = gpu id (i.e. 0 1 ...)"
@@ -126,7 +126,13 @@ while read p; do
     #$motioncor2exe -InMrc $orig -OutMrc $new -Iter 10 -Tol 0.5 -Throw 2 -PixSize $apix
 
     #For patch alignment, dose weighting, fourier binning of superres, and grouping for higher S/N
-    ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -SumRange 0 0 -Gpu $gpu 
+    if [ $ext = tif ]; then
+     ${motioncor2exe} -InTiff ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -SumRange 0 0 -Gpu $gpu 
+     elif [ $ext = mrc ]; then
+     ${motioncor2exe} -InMrc ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Patch ${patchx} ${patchy} -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FmDose $dose -FtBin $bin -Group ${group} -SumRange 0 0 -Gpu $gpu 
+     elif [ $ext = eer ]; then
+     ${motioncor2exe} -InEer ${orig} -OutMrc ${new} -Gain ${gain} -RotGain $rotation -FlipGain $flip -Iter 10 -Tol 0.5 -Throw 0 -kV $volt -PixSize $apix -FtBin $bin -Group ${group} -SumRange 0 0 -Gpu $gpu 
+    fi
    fi
 
    i=$((i+1))
