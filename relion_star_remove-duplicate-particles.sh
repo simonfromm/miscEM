@@ -71,7 +71,7 @@ fi
 
 ###define header size and split header from data
 PARLINES=`cat $RELION | grep "#" | tail -1 | awk '{print $2}' | sed -e 's/#//g'`
-HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}'`
+HEADER=`cat $RELION | awk '{if($1=="loop_") print NR}' | tail -1`
 HEADERLINES=$(( PARLINES + HEADER ))
 head -${HEADERLINES} $RELION > header.tmp
 cat $RELION | awk -v HEADER=${HEADERLINES} '{if(NR>HEADER) print $0}' > particles.tmp
