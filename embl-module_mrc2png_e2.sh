@@ -83,7 +83,7 @@ while read p ; do
 done < mics_new.list
 
 ###rename png files
-rename 's/.mrc//' *.mrc.png
+rename .mrc.png .png *.mrc.png
 
 ###check if all png files where generated
 PNG=`ls -l *.png | wc -l`

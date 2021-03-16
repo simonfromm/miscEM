@@ -39,17 +39,17 @@ EXT=$1
 i=1
 
 while  [ $i -lt 10 ] ; do
- rename -e "s/_$i.$EXT/_000$i.$EXT/" *.$EXT
+ rename "_$i.$EXT" "_000$i.$EXT" *.$EXT
  i=$((i+1))
 done
 
 while [ $i -lt 100 ] ; do
- rename -e "s/_$i.$EXT/_00$i.$EXT/" *.$EXT
+ rename "_$i.$EXT" "_00$i.$EXT" *.$EXT
  i=$((i+1))
 done
 
 while [ $i -lt 1000 ] ; do
- rename -e "s/_$i.$EXT/_0$i.$EXT/" *.$EXT
+ rename "_$i.$EXT" "_0$i.$EXT" *.$EXT
  i=$((i+1))
 done
 
