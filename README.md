@@ -1,6 +1,6 @@
 # miscEM
 #################################################################################
-### Simon Fromm, UC Berkeley 2018                                             ###
+### Simon Fromm, UC Berkeley 2018, EMBL Heidelberg 2021                       ###
 ###                                                                           ###
 ### Git repository for various EM related file operations                     ###
 ###                                                                           ###
