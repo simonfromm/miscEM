@@ -81,22 +81,20 @@ cat $IN | awk -v BOX=$BOX -v APIX=$APIX -v COL=$COL '{if(NR>1) print ($1/(BOX * 
 
 ###now convert this file to xml format
 
-i=1
-
-j=`cat ${IN%*.txt}_${TYPE}.txt | wc -l`
-j=$(( j + 1 ))
-
 echo '<fsc title="" xaxis="Resolution (A-1)" yaxis="Correlation Coefficient">' >  $XMLOUT
 
-while [ $i -lt $j ]
+HEADER=1
+cat ${TXTOUT} | while read X Y
 do
-	x=`cat $TXTOUT | awk -v i=$i '{if(NR==i) print $1}'`
-	y=`cat $TXTOUT | awk -v i=$i '{if(NR==i) print $2}'`
+	if [ "$HEADER" ]
+	then
+		HEADER=
+		continue
+	fi
 	echo '  <coordinate>' >> $XMLOUT
-	echo "    <x>$x</x>" >> $XMLOUT
-	echo "    <y>$y</y>" >> $XMLOUT
+	echo "    <x>$X</x>" >> $XMLOUT
+	echo "    <y>$Y</y>" >> $XMLOUT
 	echo '  </coordinate>' >> $XMLOUT
-	i=$(( i + 1 ))
 done
 
 echo '</fsc>' >> $XMLOUT
