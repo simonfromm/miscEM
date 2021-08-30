@@ -22,7 +22,7 @@
 #################################################################################
 
 #check input
-if [ -z $3 ] ; then
+if [ -z $2 ] ; then
  echo
  echo 'Script to correct the particles path from a csparc2 star file (converted using pyEM) based on _rlnImageName from the original relion star file'
  echo '     Script will also add fields present in the original relion star file but missing in the csparc2 star file to the newly generated star file' 
@@ -88,8 +88,8 @@ RELION=$1
 shift
 CSPARC=$1
 shift
-MICSTRING=$1
-shift
+#MICSTRING=$1
+#shift
 
 ###test if optics table exists in star file converted from cryosparc with pyem
 OPTICS=`cat $CSPARC | grep data_optics | wc -l`
@@ -133,7 +133,8 @@ HEADERLINES=$(( PARLINES + HEADER ))
 
 ###sed replacement of csparc2 particle path by relion particle path
 #csparc2 path
-CPATH=`head -1 csparc2_particles.tmp | sed -e 's/@/ /g' | awk '{print $2}' | sed -e "s/$MICSTRING/ /g" | awk '{print $1}'`
+#CPATH=`head -1 csparc2_particles.tmp | sed -e 's/@/ /g' | awk '{print $2}' | sed -e "s/$MICSTRING/ /g" | awk '{print $1}'`
+CPATH=`head -1 csparc2_particles.tmp | sed -e 's/@/ /g' -e 's/\(.*\)\//\1 /' | awk '{print $2}'`
 
 echo $CPATH | sed -e 's/\//\\\//g' >> tmp.tmp
 
@@ -143,7 +144,8 @@ rm -f tmp.tmp
 
 #relion path
 IMGCOL=`cat $RELION | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
-RPATH=`awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $RELION | head -1 | sed -e 's/@/ /g' | awk '{print $2}' | sed -e "s/$MICSTRING/ /g" | awk '{print $1}'`
+#RPATH=`awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $RELION | head -1 | sed -e 's/@/ /g' | awk '{print $2}' | sed -e "s/$MICSTRING/ /g" | awk '{print $1}'`
+RPATH=`awk -v X=$HEADERLINES -v Y=$IMGCOL '{if(NR>X) print $Y}' $RELION | head -1 | sed -e 's/@/ /g' -e 's/\(.*\)\//\1 /' | awk '{print $2}'` 
 
 echo $RPATH | sed -e 's/\//\\\//g' >> tmp.tmp
 
@@ -153,16 +155,24 @@ rm -f tmp.tmp
 
 #sed replacement
 cat csparc2_particles.tmp | sed -e "s/$CPATH/$RPATH/g" >> tmp.tmp
-cat csparc2_star_noheader.tmp | sed -e "s/$CPATH/$RPATH/g" >> csparc2_star_noheader_relion-path.tmp
+cat csparc2_star_noheader.tmp | cut -d " " -f2-  >> csparc2_no-image-names.tmp
 
 #different particle numbering in relion star file if it came from a polishing job
 if [ $RELION = shiny.star ]
 then
- cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' | awk '{print "",$0}' > csparc2_particles_relion-path.tmp
+ cat tmp.tmp | sed -e 's/@/ /g' | awk '{printf "%i %s\n", $1, $2 }' | sed -e 's/ /@/g' | awk '{print "",$0}' > tmp2.tmp
  rm -f tmp.tmp
 else
- mv tmp.tmp csparc2_particles_relion-path.tmp
+ mv tmp.tmp tmp2.tmp 
 fi
+
+#remove extra number string cryosparc attaches to each image name
+cat tmp2.tmp | sed -e 's/\(.*\)\//\1 /' | awk '{print $2, $1}' | cut -c 23- | awk '{print $2, $1}' | sed -e 's/ /\//' > csparc2_particles_relion-path.tmp
+
+rm -f tmp2.tmp
+
+paste -d " " csparc2_particles_relion-path.tmp csparc2_no-image-names.tmp >> csparc2_star_noheader_relion-path.tmp
+rm -f csparc2_no-image-names.tmp
 
 ###find particles defined in csparc2_particles_relion-path.tmp in Relion star file
 grep -Ff csparc2_particles_relion-path.tmp $RELION >> csparc2_particles_relion-parameters.tmp
@@ -215,18 +225,26 @@ cat new_header.tmp particles_from_csparc2_full-parameters.tmp >> particles_from_
 PARTIN=`cat csparc2_particles.tmp | wc -l`
 PARTOUT=`cat particles_from_csparc2_full-parameters.tmp | wc -l`
 
-###test if micrograph and image names fit; if now spit out error message but still give outputs for trouble shooting
+###test if micrograph and image names fit; if not spit out error message but still give outputs for trouble shooting
 IMGCOL=`cat particles_from_csparc2.star | grep _rlnImageName | awk '{print $2}' | sed -e 's/#//g'`
 MICCOL=`cat particles_from_csparc2.star | grep _rlnMicrographName | awk '{print $2}' | sed -e 's/#//g'`
+
+MICPATH=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$MICCOL '{print $X}' | head -1 | sed -e 's/\(.*\)\//\1 /' | awk '{print $1}'` 
+echo $MICPATH | sed -e 's/\//\\\//g' >> tmp.tmp
+MICPATH=`cat tmp.tmp`
+rm -f tmp.tmp
+
 if [ $RELION = shiny.star ]
 then
- TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' -e 's/_shiny//g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+ #TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' -e 's/_shiny//g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+ TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$RPATH/ /g" -e "s/$MICPATH//g" -e 's/mrcs/mrc/g' -e 's/_shiny//g' | awk '{print $2,$3}' | sed -e 's/\///g' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
 else
- TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+ #TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$MICSTRING/ $MICSTRING/g" -e 's/mrcs/mrc/g' | awk '{print $2,$4}' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
+ TEST=`cat particles_from_csparc2_full-parameters.tmp | awk -v X=$IMGCOL -v Y=$MICCOL '{print $X, $Y}' | sed -e "s/$RPATH/ /g" -e "s/$MICPATH//g" -e 's/mrcs/mrc/g' | awk '{print $2,$3}' | sed -e 's/\///g' | awk '{if($1==$2) print "TRUE"; else print "FALSE"}' | sort -g | uniq | head -1`
 fi
 
 ###tidy up
-rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp
+rm -f header.tmp csparc2_particles_relion-parameters.tmp csparc2_particles_relion-path.tmp csparc2_particles.tmp csparc2_star_noheader.tmp csparc2_star_noheader_relion-path.tmp new_header.tmp particles_from_csparc2_full-parameters.tmp missing_relion_fields.tmp relion_parameters.tmp csparc_parameters.tmp FIELD*.tmp csparc_header.tmp csparc2_star_noheader_relion-path.tmp
 
 ###if optics table exists in original star file, add it back
 if [ $OPTICS -eq 1 ]
@@ -258,7 +276,7 @@ then
 else
  echo ''
  echo '######################################'
- echo "$PARTIN particles from $CSPARC have been searched for in $RELION and $PARTOUT have been found and written to particles_from_csparc2.star with all parameters from $CSPARC maintained and missing fields from $RELION added."
+ echo "$PARTIN particles from $CSPARC have been searched for in $RELION and $PARTOUT have been found and written to particles_from_csparc2.star with all parameters from $CSPARC maintained and missing fields from $RELION added. Most propably cryosparc changed the rlnOpticsGroup number(s)! You have to check that manually and fix it if it's wrong. Easiest is to fix the number in the data_optics definition at the start of the star file. You might also want to remove the rlnRandomSubset column before using the star file in Relion. Easiest is using relion_star_handler with the --remove_column option."
  echo '######################################'
  echo ''
 fi
