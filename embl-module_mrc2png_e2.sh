@@ -32,6 +32,7 @@ if [ -z $2 ] ; then
 fi
 
 ###load eman environment
+module purge
 module load EMAN2
 
 ###set variables
