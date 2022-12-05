@@ -1,10 +1,9 @@
 #!/bin/bash
 
 #################################################################################
-### Simon Fromm, UC Berkeley 2019                                             ###
+### Simon Fromm, EMBL 2022                                                    ###
 ###                                                                           ###
-### Script to make transform cryolo CBOX coordinates to relion star           ###
-###     coordinates with desired threshold                                    ###
+### Script to invert the hand of a map using relion_image_handler             ###
 ###                                                                           ###
 ### This program is free software: you can redistribute it and/or modify      ###
 ###     it under the terms of the GNU General Public License as published by  ###
@@ -21,43 +20,34 @@
 ###                                                                           ###
 #################################################################################
 
-###check input
-if [ -z $2 ] ; then
- echo ""
- echo "Script to transform cryolo CBOX coordinates to relion star coordinates with desired threshold"
- echo ""
- echo "Usage is ${0##*/} (1) (2) ..."
- echo ""
- echo "(1) = threshold"
- echo "(2) = CBOX files to convert"
- echo ""
+#check input
+if [ -z $1 ] ; then
+ echo
+ echo "Script to invert hand using relion_image_handler"
+ echo "Usage: ${0##*/} (1)"
+ echo "		(1) Falcon 4i eer gain reference in the .gain format; can be found on OffloadData in ImagesForProcessing/EF-Falcon/<2/3>00kV"
+ echo
+ echo "exiting..."
  exit
 fi
 
-#define input variables
-CUTOFF=$1
+EER=$1
 shift
-COORD_FILES=$*
 
-#generate relion star header file
-echo "" > relion_coord_star_header.tmp
-echo "data_" >> relion_coord_star_header.tmp
-echo "" >> relion_coord_star_header.tmp
-echo "loop_" >> relion_coord_star_header.tmp
-echo "_rlnCoordinateX #1" >> relion_coord_star_header.tmp
-echo "_rlnCoordinateY #2" >> relion_coord_star_header.tmp
-echo "_rlnClassNumber #3" >> relion_coord_star_header.tmp
-echo "_rlnAnglePsi #4" >> relion_coord_star_header.tmp
-echo "_rlnAutopickFigureOfMerit  #5" >> relion_coord_star_header.tmp
+module purge
+module load IMOD/4.11.12-foss-2021a
+module load RELION/4.0.0-beta-2-EMBLv.0007_20220703_01_44c8b38_a-foss-2021a-CUDA-11.3.1
 
-#transform coordinate files
-for f in $COORD_FILES
-do
- cat $f | awk -v X=$CUTOFF '{if(NR>19 && $9>X) print $1+($4/2), $2+($5/2), -999, -999.0, -999.0}' > tmp.star 
- cat relion_coord_star_header.tmp tmp.star > ${f%%.cbox}_manualpick.star
- rm -f tmp.star
-done
+newstack $EER ${EER%%.*}.mrc
 
-rm -f relion_coord_star_header.tmp
+echo data_movies > tmp.star
+echo "" >> tmp.star
+echo loop_ >> tmp.star
+echo "_rlnMicrographMovieName #1" >> tmp.star
+echo ${EER%%.*}.mrc >> tmp.star
+
+relion_estimate_gain --i tmp.star --o ${EER%%.*}_WARP.mrc
+
+rm -f tmp.star ${EER%%.*}.mrc
 
 exit

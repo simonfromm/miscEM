@@ -83,7 +83,7 @@ read -p "press [Enter] key to confirm and run script..."
 
 #load module
 module purge
-module load RELION/b4.0.0-beta-1-EMBLv.0003_20211110_02_e3afcf9_a-fosscuda-2020b
+module load RELION_core/4.0.0-beta-2-20220703_01_44c8b38_a-foss-2021a-CUDA-11.3.1
 
 #generate input star file
 cat /g/icem/fromm/software/templates/rln_optics_header.star > in.star

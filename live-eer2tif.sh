@@ -23,15 +23,16 @@
 
 
 #check input
-if [ -z $3 ] ; then
+if [ -z $4 ] ; then
  echo
  echo 'Script to start live eer 2 tiff conversion'
  echo 'Execute the folder where your eer movies from the microscope are coming in'
  echo
- echo "Usage: ${0##*/} (1) (2)"
+ echo "Usage: ${0##*/} (1) (2) (3) (4)"
  echo "(1) (Planned) duration of data acquisition in days"
  echo "(2) Wait time in seconds before next rsync job starts (use short time, e.g. 15s for multi-shot single-particle, and longer, e.g. 120s for Tomo sessions)"
  echo "(3) Number of eer fractions to group (use the IMOD header command to check how many total fractions your movies have)"
+# echo "(4) Relion module to use"
  echo "(4) optional: gain reference in .gain format"
  echo
  echo 'exiting now...'
@@ -46,6 +47,8 @@ WAIT=$1
 shift
 EERFRACTIONS=$1
 shift
+#RELION=$1
+#shift
 GAIN=$1
 
 TIME=$((DAYS*86400))
@@ -53,7 +56,7 @@ TIME=$((DAYS*86400))
 mkdir converted_to_tif
 
 module purge
-module load RELION/b4.0.0-beta-2-EMBLv.0004_20220110_01_a26bd45_a-fosscuda-2020b
+module load RELION/4.0.0-beta-2-EMBLv.0007_20220703_01_44c8b38_a-foss-2021a-CUDA-11.3.1
 
 ls *.eer > eer-files.lst
 
@@ -63,7 +66,7 @@ echo '##########################################################################
 echo "Starting eer to tif conversion in a loop with breaks of $WAIT seconds in between"
 echo '############################################################################'
 echo
-mpirun -n 6 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
+mpirun -n 32 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
 echo
 echo '#################################################################################'
 echo "eer files are converted to tif; starting new conversion round after a $WAIT second delay"
@@ -79,7 +82,7 @@ do
  echo '######################################'
  echo
  ls *.eer > eer-files.lst
- mpirun -n 6 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
+ mpirun -n 32 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
  echo
  echo '#################################################################################'
  echo "eer files are converted to tif; starting new conversion round after a $WAIT second delay"

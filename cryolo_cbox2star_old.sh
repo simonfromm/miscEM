@@ -53,7 +53,7 @@ echo "_rlnAutopickFigureOfMerit  #5" >> relion_coord_star_header.tmp
 #transform coordinate files
 for f in $COORD_FILES
 do
- cat $f | awk -v X=$CUTOFF '{if(NR>19 && $9>X) print $1+($4/2), $2+($5/2), -999, -999.0, -999.0}' > tmp.star 
+ cat $f | awk -v X=$CUTOFF '{if($5>X) print $1+($3/2), $2+($4/2), -999, -999.0, -999.0}' > tmp.star 
  cat relion_coord_star_header.tmp tmp.star > ${f%%.cbox}_manualpick.star
  rm -f tmp.star
 done

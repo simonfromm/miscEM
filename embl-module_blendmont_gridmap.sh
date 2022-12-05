@@ -39,8 +39,7 @@ shift
 
 #load modules
 module purge
-module load IMOD
-module load EMAN2
+module load IMOD/4.11.12-foss-2021a
 
 #do stitching with blendmont from IMOD package
 for f in $*
@@ -57,9 +56,16 @@ do
  if [ $SEC -gt 1 ] ; then
   newstack -split 1 -append mrc ${f%%.*}.mrc gridmap_
   rm -f ${f%%.*}.mrc
-  e2proc2d.py *.mrc @.png --meanshrink 8 --outmode uint8
+  for i in gridmap_*.mrc
+  do
+   newstack -shrink 8 $i ${i%%.*}_bin8.mrc
+   mrc2tif -p ${i%%.*}_bin8.mrc ${i%%.*}_bin8.png
+  done
+  #e2proc2d.py *.mrc @.png --meanshrink 8 --outmode uint8
  else
-  e2proc2d.py ${f%%.*}.mrc ${f%%.*}.png --meanshrink 8 --outmode uint8
+  newstack -shrink 8 ${f%%.*}.mrc ${f%%.*}_bin8.mrc
+  mrc2tif -p ${f%%.*}_bin8.mrc ${f%%.*}_bin8.png
+  #e2proc2d.py ${f%%.*}.mrc ${f%%.*}.png --meanshrink 8 --outmode uint8
  fi
 done
 
