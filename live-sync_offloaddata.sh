@@ -30,8 +30,8 @@ if [ -z $3 ] ; then
  echo
  echo "Usage: ${0##*/} (1) (2) (3)"
  echo "(1) (Planned) duration of data acquisition in days"
- echo "(2) Wait time in seconds before next rsync job starts (use short time, e.g. 15s for multi-shot single-particle, and longer, e.g. 120s for Tomo sessions)"
- echo "(3) Path of source folder on IC-Krios1 offload-data storage which has been mounted via 'gio mount'"
+ echo "(2) Wait time in seconds before next rsync job starts (e.g. 240 for multi-shot single-particle and 600 for Tomo sessions)"
+ echo "(3) Path of source folder on Krios4 offload-data storage mounted at /offloaddata/krios4/TemScripting/EF-Falcon/scb/<your name>"
  echo
  echo 'exiting now...'
  echo

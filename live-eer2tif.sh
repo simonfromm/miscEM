@@ -56,7 +56,7 @@ TIME=$((DAYS*86400))
 mkdir converted_to_tif
 
 module purge
-module load RELION/4.0.0-beta-2-EMBLv.0007_20220703_01_44c8b38_a-foss-2021a-CUDA-11.3.1
+module load RELION
 
 ls *.eer > eer-files.lst
 
@@ -66,7 +66,7 @@ echo '##########################################################################
 echo "Starting eer to tif conversion in a loop with breaks of $WAIT seconds in between"
 echo '############################################################################'
 echo
-mpirun -n 32 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
+mpirun -x UCX_TLS=tcp,self -n 8 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
 echo
 echo '#################################################################################'
 echo "eer files are converted to tif; starting new conversion round after a $WAIT second delay"
@@ -82,7 +82,7 @@ do
  echo '######################################'
  echo
  ls *.eer > eer-files.lst
- mpirun -n 32 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
+ mpirun -x UCX_TLS=tcp,self -n 8 `which relion_convert_to_tiff_mpi` --i eer-files.lst --o converted_to_tif/ --eer_grouping ${EERFRACTIONS} --only_do_unfinished true --gain $GAIN
  echo
  echo '#################################################################################'
  echo "eer files are converted to tif; starting new conversion round after a $WAIT second delay"
