@@ -104,7 +104,7 @@ relion_star_printtable ${INPUT} data_micrographs rlnMicrographName > rlnMicrogra
 cat rlnMicrographs.tmp | sed -e 's/_/ /g' | awk '{print $NF}' | sed -e 's/\./ /g' | awk '{print $1}' > data_suffixes.tmp
 rm -f rlnMicrographs.tmp
 
-#strip suffix input in case the '_' and the file name where included
+#strip suffix input in case the '_' and the file extension where included
 cat $SUFFIX | sed -e 's/_//g' -e 's/\./ /g' | awk '{print $1}' > suffix-lst.tmp
 
 #replace data suffix with new optics group
@@ -115,7 +115,10 @@ do
 	i=$(( i + 1 ))
 done
 
-mv data_suffixes.tmp data_rlnOpticsGroup.tmp
+#in case all images from one hole are meant to go into one optics group, clean up the data_suffixes.tmp file, i.e. remove the '-?' hole information
+cat data_suffixes.tmp | sed -e 's/-/ /' | awk '{print $1}' > data_suffixes_final.tmp
+
+mv data_suffixes_final.tmp data_rlnOpticsGroup.tmp
 
 ###put together new star file
 #add optics group column to data file
