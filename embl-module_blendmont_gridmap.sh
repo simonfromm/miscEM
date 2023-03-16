@@ -28,7 +28,7 @@ if [ -z $2 ] ; then
  echo "Usage: ${0##*/} (1) ..."
  echo 
  echo '         (1) mode: <default> or <sloppy>'
- echo '         (2) gridmap(s) with .st extension; wild cards allowed'
+ echo '         (2) gridmap(s) with .st or .map extension; wild cards allowed'
  echo
  echo 'exiting...'
  exit
@@ -39,32 +39,32 @@ shift
 
 #load modules
 module purge
-module load IMOD/4.11.12-foss-2021a
+module load IMOD
 
 #do stitching with blendmont from IMOD package
 for f in $*
 do
  extractpieces -mdoc $f ${f%%.*}.pl
  if [ $MODE = default ] ; then
-  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -xcorr -rootname $PWD
+  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}_stiched.mrc -plout ${f%%.*}_out.pl -xcorr -rootname $PWD
  else
-  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}.mrc -plout ${f%%.*}_out.pl -very -xcorr -rootname $PWD
+  blendmont -imin $f -plin ${f%%.*}.pl -imout ${f%%.*}_stiched.mrc -plout ${f%%.*}_out.pl -very -xcorr -rootname $PWD
  fi
 
 ####check if the resulting stiched image contains multiple maps, i.e. is an image stack, if so, split it up in individual images
- SEC=`header ${f%%.*}.mrc | grep columns | awk '{print $NF}'`
+ SEC=`header ${f%%.*}_stiched.mrc | grep columns | awk '{print $NF}'`
  if [ $SEC -gt 1 ] ; then
-  newstack -split 1 -append mrc ${f%%.*}.mrc gridmap_
-  rm -f ${f%%.*}.mrc
-  for i in gridmap_*.mrc
+  newstack -split 1 -append mrc ${f%%.*}_stiched.mrc ${f%%.*}_stiched_
+  rm -f ${f%%.*}_stiched.mrc
+  for i in ${f%%.*}_stiched_*.mrc
   do
    newstack -shrink 8 $i ${i%%.*}_bin8.mrc
    mrc2tif -p ${i%%.*}_bin8.mrc ${i%%.*}_bin8.png
   done
   #e2proc2d.py *.mrc @.png --meanshrink 8 --outmode uint8
  else
-  newstack -shrink 8 ${f%%.*}.mrc ${f%%.*}_bin8.mrc
-  mrc2tif -p ${f%%.*}_bin8.mrc ${f%%.*}_bin8.png
+  newstack -shrink 8 ${f%%.*}_stiched.mrc ${f%%.*}_stiched_bin8.mrc
+  mrc2tif -p ${f%%.*}_stiched_bin8.mrc ${f%%.*}_stiched_bin8.png
   #e2proc2d.py ${f%%.*}.mrc ${f%%.*}.png --meanshrink 8 --outmode uint8
  fi
 done
