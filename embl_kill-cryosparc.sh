@@ -24,13 +24,13 @@
 
 USR=$1
 
-JOBS=`ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $2}'`
+JOBS=`ps -ef | grep cryosparc | awk -v X=$USR '{if($1==X) print $2}'`
 
 echo "#################################################################################################"
 echo "ATTENTION: This will kill all cryosparc processes run under the user $USR on $HOSTNAME as listed below"
 echo "#################################################################################################"
 echo
-ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $0}'
+ps -ef | grep cryosparc | awk -v X=$USR '{if($1==X) print $0}'
 echo
 echo "#################################################################################################"
 read -p "press [Enter] key to confirm and run script or Ctrl+C to abort..."
@@ -46,7 +46,7 @@ echo "All jobs listed above have been attempted to be killed; if none are listed
 echo "If some jobs are still listed, you may not have permissions to kill the above listed jobs. Sorry about that."
 echo "######################################################################################################################"
 echo
-ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $0}'
+ps -ef | grep cryosparc | awk -v X=$USR '{if($1==X) print $0}'
 
 exit
 
