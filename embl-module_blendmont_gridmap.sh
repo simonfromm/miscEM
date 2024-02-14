@@ -70,6 +70,6 @@ do
 done
 
 #clean up
-rm -f ../*.yef* ../*.ecd* ../*.xef*
+rm -f ../*.yef* ../*.ecd* ../*.xef* *.pl
 
 exit

@@ -25,14 +25,13 @@
 #check input
 if [ -z $4 ] ; then
  echo
- echo 'Script to start live eer 2 tiff conversion'
+ echo 'Script to start live eer 2 tif conversion'
  echo 'Execute the folder where your eer movies from the microscope are coming in'
  echo
  echo "Usage: ${0##*/} (1) (2) (3) (4)"
  echo "(1) (Planned) duration of data acquisition in days"
- echo "(2) Wait time in seconds before next rsync job starts (use short time, e.g. 15s for multi-shot single-particle, and longer, e.g. 120s for Tomo sessions)"
+ echo "(2) Wait time in seconds before next eer to tif conversion job starts (use short time, e.g. 15s for multi-shot single-particle, and longer, e.g. 120s for Tomo sessions)"
  echo "(3) Number of eer fractions to group (use the IMOD header command to check how many total fractions your movies have)"
-# echo "(4) Relion module to use"
  echo "(4) optional: gain reference in .gain format"
  echo
  echo 'exiting now...'
@@ -47,8 +46,6 @@ WAIT=$1
 shift
 EERFRACTIONS=$1
 shift
-#RELION=$1
-#shift
 GAIN=$1
 
 TIME=$((DAYS*86400))

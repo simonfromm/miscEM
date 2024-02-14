@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #################################################################################
-### Simon Fromm, EMBL 2022                                                    ###
+### Simon Fromm, EMBL 2024                                                    ###
 ###                                                                           ###
-### Script to convert mrc micrographs to 8bit png iwht optional binning       ###
+### Script to generate gridmap montage from SerialEM stack. Stack must have   ###
+###     .st extension and accompanying .st.mdoc file.                         ###
 ###                                                                           ###
 ### This program is free software: you can redistribute it and/or modify      ###
 ###     it under the terms of the GNU General Public License as published by  ###
@@ -20,60 +21,32 @@
 ###                                                                           ###
 #################################################################################
 
-###check input
-if [ -z $2 ] ; then
- echo ""
- echo "Variables empty, usage is ${0##*/} (1) (2) ..."
- echo ""
- echo "(1) = binning factor for conversion into pngs ('1' for no binning)"
- echo "(2) = input stack"
- echo ""
- exit
-fi
 
-###load eman environment
-module purge
-module load IMOD/4.11.12-foss-2021a
+USR=`echo $USER`
 
-###set variables
-bin=$1
-shift
-stack=$*
+JOBS=`ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $2}'`
 
-###ask if all inputs are correct
 echo "#################################################################################################"
-echo "${stack} will be split into single files and those then converted to png files with ${bin}x binning (png files only)."
+echo "ATTENTION: This will kill all cryosparc processes run under the user $USR on $HOSTNAME as listed below"
 echo "#################################################################################################"
-read -p "press [Enter] key to confirm and run script..."
+echo
+ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $0}'
+echo
+echo "#################################################################################################"
+read -p "press [Enter] key to confirm and run script or Ctrl+C to abort..."
 
-for f in $stack
+for f in $JOBS
 do
-###split the stack
-	newstack -split 1 -append mrc ${f} ${f%%.*}_
-
-###generate list for conversion to png
-	ls ${f%%.*}_*.mrc > mics_new.list
-
-###conversion
-	if [[ $bin -gt 1 ]]
-	then
- 		while read p ; do
-  		newstack -shrink ${bin} ${p%%.*}.mrc ${p%%.*}_bin${bin}.mrc
-  		mrc2tif -p ${p%%.*}_bin${bin}.mrc ${p%%.*}_bin${bin}.png
- 		done < mics_new.list
-	else
- 		while read p ; do
-  		mrc2tif -p ${p} ${p%%.*}.png
- 		done < mics_new.list
-	fi
-
-###check if all png files where generated
-
-	rm -f *.list
-
-	echo
-	echo "$f has been splint and into png files with binning ${bin}"
-	echo
+ sudo kill -9 $f
 done
 
+echo
+echo "######################################################################################################################"
+echo "All jobs listed above have been attempted to be killed; if none are listed below anymore the operation was successful."
+echo "If some jobs are still listed, you may not have permissions to kill the above listed jobs. Sorry about that."
+echo "######################################################################################################################"
+echo
+ps -ef | grep cryosparc | awk -v X=$USR '{if($1=="X") print $0}'
+
 exit
+
